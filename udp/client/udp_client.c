@@ -36,6 +36,43 @@ int main(int argc, char **argv) {
     }
     hostname = argv[1];
     portno = atoi(argv[2]);
+    char user_cmd_unparsed[BUFSIZE];
+    char user_cmd[BUFSIZE];
+    char file_name[BUFSIZE];
+    //Print user interface commands
+    printf("Type any of the following commands:\n");
+    printf("get [file_name]\n");
+    printf("put [file_name]\n");
+    printf("delete [file_name]\n");
+    printf("ls\n");
+    printf("exit\n");
+
+    //get user command and filename
+    //source https://www.includehelp.com/c/c-program-to-read-string-with-spaces-using-scanf-function.aspx
+    scanf("%[^\n]", user_cmd_unparsed);
+
+    //parse string to get cmd and file_name seperate
+    //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+    char *token;
+    token = strtok(user_cmd_unparsed," ");
+    //get command of user string
+    strcpy(user_cmd,token);
+
+    //get next token
+    token = strtok(NULL, " ");
+    //get file_name
+    strcpy(file_name, token);
+
+    printf("parsed cmd is %s\n", user_cmd);
+    printf("parsed file_name is %s\n",file_name);
+
+    switch(user_cmd){
+
+
+
+    }
+    
+
 
     /* socket: create the socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
