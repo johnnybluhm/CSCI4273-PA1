@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
     char user_cmd_unparsed[BUFSIZE];
     char user_cmd[BUFSIZE];
     char file_name[BUFSIZE];
+
+    while(1){
     //Print user interface commands
     printf("Type any of the following commands:\n");
     printf("get [file_name]\n");
@@ -51,27 +53,65 @@ int main(int argc, char **argv) {
     //source https://www.includehelp.com/c/c-program-to-read-string-with-spaces-using-scanf-function.aspx
     scanf("%[^\n]", user_cmd_unparsed);
 
+
+    //handle exit command
+    if(strcmp("exit", user_cmd_unparsed)==0){
+        printf("Goodbye!\n");
+        return 0;
+    }
+
     //parse string to get cmd and file_name seperate
     //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
-    char *token;
+ /*   char *token;
     token = strtok(user_cmd_unparsed," ");
     //get command of user string
     strcpy(user_cmd,token);
 
+    if(token!=NULL){
     //get next token
     token = strtok(NULL, " ");
     //get file_name
     strcpy(file_name, token);
+}
 
     printf("parsed cmd is %s\n", user_cmd);
     printf("parsed file_name is %s\n",file_name);
 
-    switch(user_cmd){
-
-
-
+    //convert strings to ints so i can use switch
+    int user_cmd_int;
+    if(strcmp("get", user_cmd)== 0 ){
+        user_cmd_int = 1;
     }
-    
+    else if(strcmp("put", user_cmd)==0){
+        user_cmd_int=2;
+    }
+    else if(strcmp("delete", user_cmd)==0){
+        user_cmd_int=3;
+    }
+    else if(strcmp("ls", user_cmd)==0){
+        user_cmd_int=4;
+    }*/
+
+  /*  switch(user_cmd_int){
+
+        //get command
+        case 1: 
+
+
+
+
+
+        //put command
+        case 2:
+
+        //delete command
+        case 3:
+
+
+        //ls
+        case 4:
+
+    }*/
 
 
     /* socket: create the socket */
@@ -95,8 +135,8 @@ int main(int argc, char **argv) {
 
     /* get a message from the user */
     bzero(buf, BUFSIZE);
-    printf("Please enter msg: ");
-    fgets(buf, BUFSIZE, stdin);
+    printf("copying string ");
+    strcpy(buf, user_cmd_unparsed);
 
     /* send the message to the server */
     serverlen = sizeof(serveraddr);
@@ -110,4 +150,5 @@ int main(int argc, char **argv) {
       error("ERROR in recvfrom");
     printf("Echo from server: %s", buf);
     return 0;
-}
+}//while
+}//main

@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
    * main loop: wait for a datagram, then echo it
    */
   clientlen = sizeof(clientaddr);
+  printf("listening on port %d\n",portno);
   while (1) {
 
     /*
@@ -90,6 +91,64 @@ int main(int argc, char **argv) {
     if (n < 0)
       error("ERROR in recvfrom");
 
+
+
+    char user_cmd_unparsed[BUFSIZE];
+    char user_cmd[BUFSIZE];
+    char file_name[BUFSIZE];
+    strcpy(user_cmd_unparsed,buf);
+
+    //parse string to get cmd and file_name seperate
+    //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+    char *token;
+    token = strtok(user_cmd_unparsed," ");
+    //get command of user string
+    strcpy(user_cmd,token);
+
+    if(token!=NULL){
+    //get next token
+    token = strtok(NULL, " ");
+    //get file_name
+    strcpy(file_name, token);
+}
+
+    //convert strings to ints so i can use switch
+    int user_cmd_int;
+    if(strcmp("get", user_cmd)== 0 ){
+        user_cmd_int = 1;
+    }
+    else if(strcmp("put", user_cmd)==0){
+        user_cmd_int=2;
+    }
+    else if(strcmp("delete", user_cmd)==0){
+        user_cmd_int=3;
+    }
+    else if(strcmp("ls", user_cmd)==0){
+        user_cmd_int=4;
+    }
+
+  /*  switch(user_cmd_int){
+
+        //get command
+        case 1: 
+
+
+
+
+
+        //put command
+        case 2:
+
+        //delete command
+        case 3:
+
+
+        //ls
+        case 4:
+
+    }*/
+
+    printf("string from user? %s\n",buf );
     /* 
      * gethostbyaddr: determine who sent the datagram
      */
