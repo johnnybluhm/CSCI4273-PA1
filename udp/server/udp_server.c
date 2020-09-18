@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 
     }*/
 
-    printf("string from user? %s\n",buf );
+    
     /* 
      * gethostbyaddr: determine who sent the datagram
      */
