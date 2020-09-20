@@ -15,6 +15,8 @@
 
 #define BUFSIZE 1024
 
+long int findSize(char file_name[]);
+
 /*
  * error - wrapper for perror
  */
@@ -80,7 +82,6 @@ int main(int argc, char **argv) {
    */
   clientlen = sizeof(clientaddr);
   printf("listening on port %d\n",portno);
-  while (1) {
 
     /*
      * recvfrom: receive a UDP datagram from a client
@@ -92,12 +93,14 @@ int main(int argc, char **argv) {
       error("ERROR in recvfrom");
 
 
-
     char user_cmd_unparsed[BUFSIZE];
     char user_cmd[BUFSIZE];
     char file_name[BUFSIZE];
     strcpy(user_cmd_unparsed,buf);
+    printf("%s\n",user_cmd_unparsed );
 
+
+    if(strcmp(user_cmd_unparsed, "ls")!=0){
     //parse string to get cmd and file_name seperate
     //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
     char *token;
@@ -110,10 +113,27 @@ int main(int argc, char **argv) {
     token = strtok(NULL, " ");
     //get file_name
     strcpy(file_name, token);
-}
+    
+}//if
+}//ls if
+
+
+    /* 
+     * gethostbyaddr: determine who sent the datagram
+     */
+    hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
+        sizeof(clientaddr.sin_addr.s_addr), AF_INET);
+    if (hostp == NULL)
+      error("ERROR on gethostbyaddr");
+    hostaddrp = inet_ntoa(clientaddr.sin_addr);
+    if (hostaddrp == NULL)
+      error("ERROR on inet_ntoa\n");
+    printf("server received datagram from %s (%s)\n", 
+     hostp->h_name, hostaddrp);
+    printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
 
     //convert strings to ints so i can use switch
-    int user_cmd_int;
+   int user_cmd_int;
     if(strcmp("get", user_cmd)== 0 ){
         user_cmd_int = 1;
     }
@@ -127,48 +147,103 @@ int main(int argc, char **argv) {
         user_cmd_int=4;
     }
 
-  /*  switch(user_cmd_int){
+    int file_size;
+    printf("file name is %s\n",file_name );
+    file_size = findSize(file_name);
+    printf("file size is %d\n",file_size);
+    FILE *f_ptr;
+    f_ptr = fopen(file_name, "r");
+    char file_contents[file_size];
+
+    switch(user_cmd_int){
 
         //get command
         case 1: 
+        printf("In get\n");
 
+      //fill string with file contents
+   /*   int i;
+      i=1;
+      char c;
+      c = fgetc(f_ptr);
+      file_contents[0] =c;
+      while( c!= EOF){
+        c = fgetc(f_ptr);
+        i++;
+        file_contents[i] = c;
+        printf("%s\n", file_contents);
+        }*/
+        for(int i = 0; i<=file_size+1; i++){
+          file_contents[i]=fgetc(f_ptr);
+          
+        }
+      
+            // Return if could not open file 
+          printf("loop exits");
+      
+          
+
+      //sending file 
+      n = sendto(sockfd, file_contents, file_size, 0, 
+         (struct sockaddr *) &clientaddr, clientlen);
+       if (n < 0) 
+      error("ERROR in sendto");
+        break;
 
 
 
 
         //put command
         case 2:
+        printf("I Wll code put\n");
+        break;
 
         //delete command
         case 3:
-
+        printf("I Wll code delete\n");
+        break;
 
         //ls
         case 4:
+        printf("CODING ls\n");
+        break;
+    }
 
-    }*/
-
-    
-    /* 
-     * gethostbyaddr: determine who sent the datagram
-     */
-    hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
-			  sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-    if (hostp == NULL)
-      error("ERROR on gethostbyaddr");
-    hostaddrp = inet_ntoa(clientaddr.sin_addr);
-    if (hostaddrp == NULL)
-      error("ERROR on inet_ntoa\n");
-    printf("server received datagram from %s (%s)\n", 
-	   hostp->h_name, hostaddrp);
-    printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
-    
     /* 
      * sendto: echo the input back to the client 
      */
-    n = sendto(sockfd, buf, strlen(buf), 0, 
+   /* n = sendto(sockfd, buf, strlen(buf), 0, 
 	       (struct sockaddr *) &clientaddr, clientlen);
     if (n < 0) 
-      error("ERROR in sendto");
-  }
+      error("ERROR in sendto");*/
+  //while(1)
+}//main
+
+
+
+
+
+
+//https://www.geeksforgeeks.org/c-program-find-size-file/
+
+long int findSize(char file_name[]) 
+{ 
+    // opening the file in read mode 
+    FILE* fp = fopen(file_name, "r"); 
+  
+    // checking if the file exist or not 
+    if (fp == NULL) { 
+        printf("File Not Found!\n"); 
+        return -1; 
+    } 
+  
+    fseek(fp, 0L, SEEK_END); 
+  
+    // calculating the size of the file 
+    long int res = ftell(fp); 
+  
+    // closing the file 
+    fclose(fp); 
+
+    return res;
 }

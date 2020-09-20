@@ -12,6 +12,7 @@
 #include <netdb.h> 
 
 #define BUFSIZE 1024
+#define MAX_FILE_SIZE 10000
 
 /* 
  * error - wrapper for perror
@@ -60,58 +61,11 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    //parse string to get cmd and file_name seperate
-    //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
- /*   char *token;
-    token = strtok(user_cmd_unparsed," ");
-    //get command of user string
-    strcpy(user_cmd,token);
-
-    if(token!=NULL){
-    //get next token
-    token = strtok(NULL, " ");
-    //get file_name
-    strcpy(file_name, token);
-}
-
-    printf("parsed cmd is %s\n", user_cmd);
-    printf("parsed file_name is %s\n",file_name);
-
-    //convert strings to ints so i can use switch
-    int user_cmd_int;
-    if(strcmp("get", user_cmd)== 0 ){
-        user_cmd_int = 1;
-    }
-    else if(strcmp("put", user_cmd)==0){
-        user_cmd_int=2;
-    }
-    else if(strcmp("delete", user_cmd)==0){
-        user_cmd_int=3;
-    }
-    else if(strcmp("ls", user_cmd)==0){
-        user_cmd_int=4;
-    }*/
-
-  /*  switch(user_cmd_int){
-
-        //get command
-        case 1: 
 
 
+   // printf("parsed cmd is %s\n", user_cmd);
+    //printf("parsed file_name is %s\n",file_name);
 
-
-
-        //put command
-        case 2:
-
-        //delete command
-        case 3:
-
-
-        //ls
-        case 4:
-
-    }*/
 
 
     /* socket: create the socket */
@@ -133,7 +87,7 @@ int main(int argc, char **argv) {
 	  (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons(portno);
 
-    /* get a message from the user */
+    /* get a message from the user to send to client */
     bzero(buf, BUFSIZE);
     printf("copying string ");
     strcpy(buf, user_cmd_unparsed);
@@ -143,12 +97,74 @@ int main(int argc, char **argv) {
     n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
     if (n < 0) 
       error("ERROR in sendto");
-    
+
+
+        //parse string to get cmd and file_name seperate
+    //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+    char *token;
+    token = strtok(user_cmd_unparsed," ");
+    //get command of user string
+    strcpy(user_cmd,token);
+
+    if(token!=NULL){
+    //get next token
+    token = strtok(NULL, " ");
+    //get file_name
+    strcpy(file_name, token);
+}
+
     /* print the server's reply */
-    n = recvfrom(sockfd, buf, strlen(buf), 0, &serveraddr, &serverlen);
+  /*  n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
     if (n < 0) 
       error("ERROR in recvfrom");
-    printf("Echo from server: %s", buf);
+    printf("Echo from server: %s", buf);*/
+
+
+      //convert strings to ints so i can use switch
+   int user_cmd_int;
+    if(strcmp("get", user_cmd)== 0 ){
+        user_cmd_int = 1;
+    }
+    else if(strcmp("put", user_cmd)==0){
+        user_cmd_int=2;
+    }
+    else if(strcmp("delete", user_cmd)==0){
+        user_cmd_int=3;
+    }
+    else if(strcmp("ls", user_cmd)==0){
+        user_cmd_int=4;
+    }
+
+    switch(user_cmd_int){
+
+        //get command
+        case 1: 
+        printf("handling get\n");
+
+        FILE *f_ptr;
+  
+        
+        
+        break;
+
+
+
+
+
+        //put command
+        case 2:
+
+        //delete command
+        case 3:
+
+
+        //ls
+        case 4:
+        printf("ls\n");
+        break;
+    }//switch
+    
+
     return 0;
 }//while
 }//main
