@@ -5,9 +5,10 @@ Run client from UDP directory, this is because of the way files are saved.
 Run server from server directory
 ./server <port number>
 
+To build programs, type make in the UDP directory. 
 
 There is no looping functionality for client. Must be restarted each time a command is sent to server.
 Commands must be exact or it will probably break. For instance, typing "ls get" or "exit now" will break code.
 Server does loop so that can be left running while testing commands on client. 
 
-To build programs, type make in the UDP directory. 
+Client and server files are similar, but different. When getting/putting the one in the directory is overwritten.
