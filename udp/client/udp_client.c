@@ -134,7 +134,6 @@ int main(int argc, char **argv) {
     else{
         //convert strings to ints so i can use switch
    int user_cmd_int;
-   printf("user cmd is %s\n", user_cmd);
     if(strcmp("get", user_cmd)== 0 ){
         user_cmd_int = 1;
     }
@@ -153,7 +152,10 @@ int main(int argc, char **argv) {
         //get command
         case 1: 
         printf("handling get\n");
-        
+            n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
+    if (n < 0) 
+      error("ERROR in recvfrom");
+    printf("Get from server: %s", buf);
         
         break;
 

@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
           file_contents[i]=fgetc(f_ptr);
           
         }
-      
+        printf("%s\n",file_contents );
             // Return if could not open file 
           printf("loop exits");
       
