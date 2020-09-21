@@ -12,10 +12,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+//needed for ls code
+#include <dirent.h>
 
 #define BUFSIZE 1024
 
 long int findSize(char file_name[]);
+int delete_file(char *file_name);
+int ls(char *ls_contents);
 
 /*
  * error - wrapper for perror
@@ -113,8 +117,10 @@ int main(int argc, char **argv) {
     token = strtok(NULL, " ");
     //get file_name
     strcpy(file_name, token);
-    
-}//if
+    }//if
+
+
+
 }//ls if
 
 
@@ -133,7 +139,7 @@ int main(int argc, char **argv) {
     printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
 
     //convert strings to ints so i can use switch
-   int user_cmd_int;
+     int user_cmd_int;
     if(strcmp("get", user_cmd)== 0 ){
         user_cmd_int = 1;
     }
@@ -147,6 +153,28 @@ int main(int argc, char **argv) {
         user_cmd_int=4;
     }
 
+
+    //nested if to code ls edge case
+    if(strcmp(user_cmd_unparsed, "ls") == 0){
+      char ls_contents[BUFSIZE];
+      ls(ls_contents);
+
+      printf("%s\n", ls_contents);
+
+      n = sendto(sockfd, ls_contents, strlen(ls_contents), 0, 
+         (struct sockaddr *) &clientaddr, clientlen);
+       if (n < 0) 
+      error("ERROR in sendto");
+
+
+
+
+
+
+    }
+    else{
+
+    
     int file_size;
     printf("file name is %s\n",file_name );
     file_size = findSize(file_name);
@@ -201,11 +229,14 @@ int main(int argc, char **argv) {
         //delete command
         case 3:
         printf("I Wll code delete\n");
+
+        delete_file(file_name);
         break;
 
         //ls
         case 4:
         printf("CODING ls\n");
+        //ls();
         break;
     }
 
@@ -217,6 +248,8 @@ int main(int argc, char **argv) {
     if (n < 0) 
       error("ERROR in sendto");*/
   //while(1)
+  //
+}//nested else
 }//main
 
 
@@ -246,4 +279,33 @@ long int findSize(char file_name[])
     fclose(fp); 
 
     return res;
+}
+
+//source: https://www.geeksforgeeks.org/c-program-delete-file/
+int delete_file(char *file_name)
+  { 
+   if (remove(file_name) == 0) 
+      printf("Deleted successfully"); 
+   else
+      printf("Unable to delete the file"); 
+  
+   return 0; 
+} 
+
+
+int ls(char *ls_contents)
+{
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(".");
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            printf("%s\n", dir->d_name);
+            strcat(ls_contents, dir->d_name);
+        }
+        closedir(d);
+    }
+    return(0);
 }

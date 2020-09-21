@@ -98,8 +98,8 @@ int main(int argc, char **argv) {
     if (n < 0) 
       error("ERROR in sendto");
 
-
-        //parse string to get cmd and file_name seperate
+    if(strcmp(user_cmd_unparsed, "ls")!=0){
+    //parse string to get cmd and file_name seperate
     //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
     char *token;
     token = strtok(user_cmd_unparsed," ");
@@ -111,10 +111,11 @@ int main(int argc, char **argv) {
     token = strtok(NULL, " ");
     //get file_name
     strcpy(file_name, token);
-}
+        }//if
+    }//ls if
 
     /* print the server's reply */
-  /*  n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
+   /* n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
     if (n < 0) 
       error("ERROR in recvfrom");
     printf("Echo from server: %s", buf);*/
@@ -122,27 +123,24 @@ int main(int argc, char **argv) {
 
       //convert strings to ints so i can use switch
    int user_cmd_int;
-    if(strcmp("get", user_cmd)== 0 ){
+    if(strcmp("get", user_cmd)== 1 ){
         user_cmd_int = 1;
     }
-    else if(strcmp("put", user_cmd)==0){
+    else if(strcmp("put", user_cmd)==2){
         user_cmd_int=2;
     }
-    else if(strcmp("delete", user_cmd)==0){
+    else if(strcmp("delete", user_cmd)==3){
         user_cmd_int=3;
     }
-    else if(strcmp("ls", user_cmd)==0){
+    else if(strcmp("ls", user_cmd)==4){
         user_cmd_int=4;
     }
-
+    printf("%d\n",user_cmd_int );
     switch(user_cmd_int){
 
         //get command
         case 1: 
         printf("handling get\n");
-
-        FILE *f_ptr;
-  
         
         
         break;
@@ -161,6 +159,11 @@ int main(int argc, char **argv) {
         //ls
         case 4:
         printf("ls\n");
+            /* print the server's reply */
+    n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
+    if (n < 0) 
+      error("ERROR in recvfrom");
+    printf("Ls from server: %s", buf);
         break;
     }//switch
     
