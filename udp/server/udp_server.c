@@ -302,8 +302,8 @@ int ls(char *ls_contents)
     {
         while ((dir = readdir(d)) != NULL)
         {
-            printf("%s\n", dir->d_name);
             strcat(ls_contents, dir->d_name);
+            strcat(ls_contents, "\n");
         }
         closedir(d);
     }

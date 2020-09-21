@@ -89,7 +89,6 @@ int main(int argc, char **argv) {
 
     /* get a message from the user to send to client */
     bzero(buf, BUFSIZE);
-    printf("copying string ");
     strcpy(buf, user_cmd_unparsed);
 
     /* send the message to the server */
@@ -120,19 +119,32 @@ int main(int argc, char **argv) {
       error("ERROR in recvfrom");
     printf("Echo from server: %s", buf);*/
 
+    if(strcmp(user_cmd_unparsed,"ls")==0){
+         /* print the server's reply */
+    n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
+    if (n < 0) 
+      error("ERROR in recvfrom");
+    printf("Ls from server: %s", buf);
+        
+      
+    }
 
-      //convert strings to ints so i can use switch
+    
+    
+    else{
+        //convert strings to ints so i can use switch
    int user_cmd_int;
-    if(strcmp("get", user_cmd)== 1 ){
+   printf("user cmd is %s\n", user_cmd);
+    if(strcmp("get", user_cmd)== 0 ){
         user_cmd_int = 1;
     }
-    else if(strcmp("put", user_cmd)==2){
+    else if(strcmp("put", user_cmd)==0){
         user_cmd_int=2;
     }
-    else if(strcmp("delete", user_cmd)==3){
+    else if(strcmp("delete", user_cmd)==0){
         user_cmd_int=3;
     }
-    else if(strcmp("ls", user_cmd)==4){
+    else if(strcmp("ls", user_cmd)==0){
         user_cmd_int=4;
     }
     printf("%d\n",user_cmd_int );
@@ -167,7 +179,7 @@ int main(int argc, char **argv) {
         break;
     }//switch
     
-
+}//nested else
     return 0;
 }//while
 }//main
