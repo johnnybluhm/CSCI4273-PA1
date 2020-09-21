@@ -14,6 +14,8 @@
 #define BUFSIZE 1024
 #define MAX_FILE_SIZE 10000
 
+long int findSize(char file_name[]);
+
 /* 
  * error - wrapper for perror
  */
@@ -23,6 +25,7 @@ void error(char *msg) {
 }
 
 int main(int argc, char **argv) {
+    
     int sockfd, portno, n;
     int serverlen;
     struct sockaddr_in serveraddr;
@@ -55,11 +58,7 @@ int main(int argc, char **argv) {
     scanf("%[^\n]", user_cmd_unparsed);
 
 
-    //handle exit command
-    if(strcmp("exit", user_cmd_unparsed)==0){
-        printf("Goodbye!\n");
-        return 0;
-    }
+
 
 
 
@@ -91,12 +90,31 @@ int main(int argc, char **argv) {
     bzero(buf, BUFSIZE);
     strcpy(buf, user_cmd_unparsed);
 
+
+
     /* send the message to the server */
     serverlen = sizeof(serveraddr);
+
+
+        //handle exit command
+    if(strcmp("exit", user_cmd_unparsed)==0){
+
+         n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
+    if (n < 0) 
+      error("ERROR in sendto");
+        printf("Goodbye!\n");
+        return 0;
+    }
+
+
+
+
+    //handle put command
+    if(strcmp(user_cmd_unparsed, "put")!=0){
     n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
     if (n < 0) 
       error("ERROR in sendto");
-
+    }//put if
     if(strcmp(user_cmd_unparsed, "ls")!=0){
     //parse string to get cmd and file_name seperate
     //source for strtok https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
@@ -127,9 +145,7 @@ int main(int argc, char **argv) {
     printf("Ls from server: %s", buf);
         
       
-    }
-
-    
+    }   
     
     else{
         //convert strings to ints so i can use switch
@@ -146,16 +162,39 @@ int main(int argc, char **argv) {
     else if(strcmp("ls", user_cmd)==0){
         user_cmd_int=4;
     }
-    printf("%d\n",user_cmd_int );
+
+
+
+    int file_size;
+    printf("file name in client is %s\n",file_name );
+   // file_size = findSize(file_name);
+    //printf("file size is %d\n",file_size);
+    FILE *f_ptr;
+    char directory[BUFSIZE];
+    strcpy(directory,"./client/");
+    strcat(directory, file_name);
+    file_size = findSize(directory);
+    f_ptr = fopen(directory, "r");
+
+    char file_contents[file_size];
     switch(user_cmd_int){
 
         //get command
         case 1: 
         printf("handling get\n");
+
+        FILE *fp;
+
+    //create file to write to
+    fp =fopen(directory, "w");
+
+
+
             n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
     if (n < 0) 
       error("ERROR in recvfrom");
     printf("Get from server: %s", buf);
+    fputs(buf,fp);
         
         break;
 
@@ -166,22 +205,66 @@ int main(int argc, char **argv) {
         //put command
         case 2:
 
+        //send put to server
+  printf("in put seg f\n");
+      //send file to server
+    for(int i = 0; i<=file_size+1; i++){
+          file_contents[i]=fgetc(f_ptr);
+          
+        }
+
+            n = sendto(sockfd,file_contents , file_size, 0, &serveraddr, serverlen);
+    if (n < 0) 
+      error("ERROR in sendto");
+
+
+
+
+
+    break;
         //delete command
         case 3:
-
-
+                    /* print the server's reply */
+    n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
+    if (n < 0) 
+      error("ERROR in recvfrom");
+    printf("Message from server:\n%s", buf);
+    break;
         //ls
         case 4:
-        printf("ls\n");
             /* print the server's reply */
     n = recvfrom(sockfd, buf, BUFSIZE, 0, &serveraddr, &serverlen);
     if (n < 0) 
       error("ERROR in recvfrom");
-    printf("Ls from server: %s", buf);
+    printf("Ls from server:\n%s", buf);
         break;
+
     }//switch
     
 }//nested else
-    return 0;
+   // return 0;
 }//while
 }//main
+
+
+long int findSize(char file_name[]) 
+{ 
+    // opening the file in read mode 
+    FILE* fp = fopen(file_name, "r"); 
+  
+    // checking if the file exist or not 
+    if (fp == NULL) { 
+        printf("File Not Found!\n"); 
+        return -1; 
+    } 
+  
+    fseek(fp, 0L, SEEK_END); 
+  
+    // calculating the size of the file 
+    long int res = ftell(fp); 
+  
+    // closing the file 
+    fclose(fp); 
+
+    return res;
+}

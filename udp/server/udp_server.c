@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
    */
   clientlen = sizeof(clientaddr);
   printf("listening on port %d\n",portno);
-
+while(1){
     /*
      * recvfrom: receive a UDP datagram from a client
      */
@@ -101,8 +101,30 @@ int main(int argc, char **argv) {
     char user_cmd[BUFSIZE];
     char file_name[BUFSIZE];
     strcpy(user_cmd_unparsed,buf);
-    printf("%s\n",user_cmd_unparsed );
+   
+    /* 
+     * gethostbyaddr: determine who sent the datagram
+     */
+    hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
+        sizeof(clientaddr.sin_addr.s_addr), AF_INET);
+    if (hostp == NULL)
+      error("ERROR on gethostbyaddr");
+    hostaddrp = inet_ntoa(clientaddr.sin_addr);
+    if (hostaddrp == NULL)
+      error("ERROR on inet_ntoa\n");
+    printf("server received datagram from %s (%s)\n", 
+     hostp->h_name, hostaddrp);
+    printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
 
+    if(strcmp(user_cmd_unparsed, "exit") == 0){
+      
+        n = sendto(sockfd, "Sever has exited gracefully", BUFSIZE, 0, 
+         (struct sockaddr *) &clientaddr, clientlen);
+       if (n < 0) 
+      error("ERROR in sendto");
+      printf("Goodbye\n");
+      return 0;
+    }//exit if
 
     if(strcmp(user_cmd_unparsed, "ls")!=0){
     //parse string to get cmd and file_name seperate
@@ -124,19 +146,6 @@ int main(int argc, char **argv) {
 }//ls if
 
 
-    /* 
-     * gethostbyaddr: determine who sent the datagram
-     */
-    hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
-        sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-    if (hostp == NULL)
-      error("ERROR on gethostbyaddr");
-    hostaddrp = inet_ntoa(clientaddr.sin_addr);
-    if (hostaddrp == NULL)
-      error("ERROR on inet_ntoa\n");
-    printf("server received datagram from %s (%s)\n", 
-     hostp->h_name, hostaddrp);
-    printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
 
     //convert strings to ints so i can use switch
      int user_cmd_int;
@@ -166,19 +175,13 @@ int main(int argc, char **argv) {
        if (n < 0) 
       error("ERROR in sendto");
 
-
-
-
-
-
-    }
+    }//ls if
     else{
 
     
     int file_size;
-    printf("file name is %s\n",file_name );
+    
     file_size = findSize(file_name);
-    printf("file size is %d\n",file_size);
     FILE *f_ptr;
     f_ptr = fopen(file_name, "r");
     char file_contents[file_size];
@@ -223,6 +226,25 @@ int main(int argc, char **argv) {
 
         //put command
         case 2:
+
+        printf("%s\n",file_name );
+    FILE *fp;
+
+    //create file to write to
+    fp =fopen(file_name, "w");
+
+
+    bzero(buf, BUFSIZE);
+    n = recvfrom(sockfd, buf, BUFSIZE, 0,
+     (struct sockaddr *) &clientaddr, &clientlen);
+
+    fputs(buf,fp);
+
+    printf("%s\n", buf);
+    if (n < 0)
+      error("ERROR in recvfrom");
+
+
         printf("I Wll code put\n");
         break;
 
@@ -231,6 +253,11 @@ int main(int argc, char **argv) {
         printf("I Wll code delete\n");
 
         delete_file(file_name);
+        n = sendto(sockfd, "File deleted successfully!", BUFSIZE, 0, 
+         (struct sockaddr *) &clientaddr, clientlen);
+       if (n < 0) 
+      error("ERROR in sendto");
+        break;
         break;
 
         //ls
@@ -250,6 +277,7 @@ int main(int argc, char **argv) {
   //while(1)
   //
 }//nested else
+}//wheil
 }//main
 
 
