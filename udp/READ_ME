@@ -1,2 +1,13 @@
-Run client from UDP folder
-Run server from server folder
+Run client from UDP directory, this is because of the way files are saved.
+./client/client <ip> <port number>
+
+
+Run server from server directory
+./server <port number>
+
+
+There is no looping functionality for client. Must be restarted each time a command is sent to server.
+Commands must be exact or it will probably break. For instance, typing "ls get" or "exit now" will break code.
+Server does loop so that can be left running while testing commands on client. 
+
+To build programs, type make in the UDP directory. 
